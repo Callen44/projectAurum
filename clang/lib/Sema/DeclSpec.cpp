@@ -452,7 +452,8 @@ unsigned DeclSpec::getParsedSpecifiers() const {
     Res |= PQ_TypeSpecifier;
 
   if (FS_inline_specified || FS_virtual_specified || hasExplicitSpecifier() ||
-      FS_noreturn_specified || FS_forceinline_specified)
+      hasImplicitSpecifier() || FS_noreturn_specified ||
+      FS_forceinline_specified)
     Res |= PQ_FunctionSpecifier;
   return Res;
 }
@@ -1493,7 +1494,9 @@ void DeclSpec::CheckFriendSpec(Sema &S, const PrintingPolicy &Policy) {
   //   The explicit specifier shall be used only in the declaration of
   //   a constructor or conversion function within its class
   //   definition;
-  if (isFriendSpecified() && (isVirtualSpecified() || hasExplicitSpecifier())) {
+  if (isFriendSpecified() &&
+      (isVirtualSpecified() || hasExplicitSpecifier() ||
+       hasImplicitSpecifier())) {
     StringRef Keyword;
     FixItHint Hint;
     SourceLocation SCLoc;
@@ -1502,10 +1505,14 @@ void DeclSpec::CheckFriendSpec(Sema &S, const PrintingPolicy &Policy) {
       Keyword = "virtual";
       SCLoc = getVirtualSpecLoc();
       Hint = FixItHint::CreateRemoval(SCLoc);
-    } else {
+    } else if (hasExplicitSpecifier()) {
       Keyword = "explicit";
       SCLoc = getExplicitSpecLoc();
       Hint = FixItHint::CreateRemoval(getExplicitSpecRange());
+    } else {
+      Keyword = "implicit";
+      SCLoc = FS_implicitLoc;
+      Hint = FixItHint::CreateRemoval(SCLoc);
     }
 
     S.Diag(SCLoc, diag::err_friend_decl_spec)
@@ -1513,6 +1520,7 @@ void DeclSpec::CheckFriendSpec(Sema &S, const PrintingPolicy &Policy) {
 
     FS_virtual_specified = false;
     FS_explicit_specifier = ExplicitSpecifier();
+    FS_implicitLoc = SourceLocation();
     FS_virtualLoc = FS_explicitLoc = SourceLocation();
   }
 }
