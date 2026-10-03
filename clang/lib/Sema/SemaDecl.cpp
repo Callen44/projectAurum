@@ -9727,6 +9727,11 @@ static FunctionDecl *CreateNewFunctionDecl(Sema &SemaRef, Declarator &D,
     assert(DC->isRecord() &&
            "Constructors can only be declared in a member context");
 
+    if (D.getDeclSpec().hasImplicitSpecifier())
+      ExplicitSpecifier = {nullptr, ExplicitSpecKind::ResolvedFalse};
+    else if (!D.getDeclSpec().hasExplicitSpecifier())
+      ExplicitSpecifier = {nullptr, ExplicitSpecKind::ResolvedTrue};
+
     R = SemaRef.CheckConstructorDeclarator(D, R, SC);
     return CXXConstructorDecl::Create(
         SemaRef.Context, cast<CXXRecordDecl>(DC), D.getBeginLoc(), NameInfo, R,

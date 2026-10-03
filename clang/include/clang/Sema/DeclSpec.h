@@ -423,7 +423,8 @@ private:
   SourceLocation TQ_constLoc, TQ_restrictLoc, TQ_volatileLoc, TQ_atomicLoc,
       TQ_unalignedLoc;
   SourceLocation OB_Loc;
-  SourceLocation FS_inlineLoc, FS_virtualLoc, FS_explicitLoc, FS_noreturnLoc;
+  SourceLocation FS_inlineLoc, FS_virtualLoc, FS_explicitLoc, FS_implicitLoc,
+      FS_noreturnLoc;
   SourceLocation FS_explicitCloseParenLoc;
   SourceLocation FS_forceinlineLoc;
   SourceLocation FriendLoc, ModulePrivateLoc, ConstexprLoc;
@@ -659,6 +660,7 @@ public:
     return FS_explicit_specifier.isSpecified();
   }
   SourceLocation getExplicitSpecLoc() const { return FS_explicitLoc; }
+  bool hasImplicitSpecifier() const { return FS_implicitLoc.isValid(); }
   SourceRange getExplicitSpecRange() const {
     return FS_explicit_specifier.getExpr()
                ? SourceRange(FS_explicitLoc, FS_explicitCloseParenLoc)
@@ -677,6 +679,7 @@ public:
     FS_virtualLoc = SourceLocation();
     FS_explicit_specifier = ExplicitSpecifier();
     FS_explicitLoc = SourceLocation();
+    FS_implicitLoc = SourceLocation();
     FS_explicitCloseParenLoc = SourceLocation();
     FS_noreturn_specified = false;
     FS_noreturnLoc = SourceLocation();
@@ -815,6 +818,7 @@ public:
   bool setFunctionSpecExplicit(SourceLocation Loc, const char *&PrevSpec,
                                unsigned &DiagID, ExplicitSpecifier ExplicitSpec,
                                SourceLocation CloseParenLoc);
+  void setFunctionSpecImplicit(SourceLocation Loc) { FS_implicitLoc = Loc; }
   bool setFunctionSpecNoreturn(SourceLocation Loc, const char *&PrevSpec,
                                unsigned &DiagID);
 

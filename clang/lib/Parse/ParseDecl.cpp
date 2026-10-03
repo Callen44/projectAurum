@@ -4216,6 +4216,9 @@ void Parser::ParseDeclarationSpecifiers(
         isInvalid = DS.setFunctionSpecVirtual(Loc, PrevSpec, DiagID);
       }
       break;
+    case tok::kw_implicit:
+      DS.setFunctionSpecImplicit(Loc);
+      break;
     case tok::kw_explicit: {
       SourceLocation ExplicitLoc = Loc;
       SourceLocation CloseParenLoc;
@@ -5942,6 +5945,7 @@ bool Parser::isDeclarationSpecifier(
   case tok::kw_inline:
   case tok::kw_virtual:
   case tok::kw_explicit:
+  case tok::kw_implicit:
   case tok::kw__Noreturn:
 
     // alignment-specifier
